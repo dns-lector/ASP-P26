@@ -1,0 +1,64 @@
+﻿@model ASP_P26.Models.Home.HomeRazorPageModel
+@* Тут ми задаємо тип моделі, самі дані доступні через Razor-поле @Model *@
+@{
+    ViewData["Title"] = "About Razor";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Про Razor</h1>
+</div>
+
+<p>
+    Razor - технологія (рушій), метою якого є суміщення можливостей мови програмування
+    та розмітки. Основу складає спеціальний символ &commat;, який у HTML замінюється
+    сутністю &amp;commat;
+</p>
+<h2>Вирази (Expressions)</h2>
+<p>
+    Вирази - команди, що мають результат. У сенсі Razor цей результат 
+    підставляється у томі місці, у якому згадується. Синтаксис: 
+    <code>&commat;(expression)</code>, наприклад, 
+    <code>&commat;(2 + 3) = @(2 + 3)</code>. У даному сенсі конструкцію 
+    <code>&commat;()</code> можна порівняти з оператором виведення 
+    <code>print(expression)</code>
+</p>
+<h2>Інструкції (Statements)</h2>
+<p>
+    Інструкції не мають візуального результату (не виводяться). Задаються за 
+    допомогою синтаксису <code>&commat;{Statements}</code>, наприклад 
+    <pre>
+&commat;{
+    int x = 10;
+    var rnd = new Random();
+}
+    </pre>
+</p>
+@{
+    int x = 10;
+    var rnd = new Random();
+}
+<p>
+    Скорочена форма виразів: <code>&commat;expression</code> дозволяється 
+    якщо у виразі немає розділових знаків, як-то 
+    <code>&commat;x = @x</code>
+    <code>&commat;rnd.Next() = @rnd.Next()</code>, але 
+    <code>&commat;x+1 = @x+1</code>
+</p>
+<h2>Інструкції управління (Control statements)</h2>
+<p>
+    Умовні та циклічні оператори: &commat;if, &commat;if-else, &commat;switch, &commat;for, &commat;foreach, ...
+</p>
+
+@for(int i = 0; i < Model.Arr.Length; i += 1)
+{
+    if(i % 2 == 0)
+    {
+        <i>@Model.Arr[i]</i>
+        <br />
+    }
+    else
+    {
+        <b>@Model.Arr[i]</b>
+        <br />
+    }
+}
