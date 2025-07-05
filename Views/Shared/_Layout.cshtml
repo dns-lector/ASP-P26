@@ -6,6 +6,8 @@
     <title>@ViewData["Title"] - ASP-P26</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ASP-P26.styles.css" asp-append-version="true" />
 </head>
@@ -33,6 +35,9 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Ioc">IoC</a>
                         </li>
                     </ul>
+                    <div>
+                        <a class="btn btn-outline-secondary" asp-controller="User" asp-action="SignUp"><i class="bi bi-person-circle"></i></a>
+                    </div>
                 </div>
             </div>
         </nav>
