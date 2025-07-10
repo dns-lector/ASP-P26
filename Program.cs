@@ -1,7 +1,9 @@
 using ASP_P26.Data;
+using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,7 @@ builder.Services.AddControllersWithViews();
 //builder.Services.AddSingleton<ITimeService, SecTimeService>();
 builder.Services.AddSingleton<IRandomService, DefaultRandomService>();
 builder.Services.AddSingleton<ITimeService, MillisecTimeService>();
+builder.Services.AddSingleton<IKdfService, PbKdfService>();
 
 builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(
@@ -53,9 +56,21 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    await db.Database.MigrateAsync();
+}
+
 app.Run();
-/* Д.З. Закласти проєкт курсової роботи
- * Реалізувати головну сторінку та шаблон
- * Створити контекст даних з сутностями щодо користувача
- * Створити форму реєстрації нового користувача
+/* Д.З. Доповнити валідацію даних моделі реєстрації 
+ * нового користувача:
+ * - пароль не порожній
+ * - повтор збігається з паролем
+ * - є погодження з умовами сайту (agree)
+ * * пароль відповідає вимогам надійності
+ * На представленні вивести відповідні помилки за наявності
+ * 
+ * Для пошти перевірити доступ SMTP, зокрема для Гугл необхідна
+ * двофакторна автентифікація
  */
