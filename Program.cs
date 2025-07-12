@@ -1,4 +1,5 @@
 using ASP_P26.Data;
+using ASP_P26.Middleware.Auth;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
@@ -25,7 +26,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.IdleTimeout = TimeSpan.FromSeconds(100);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -50,6 +51,10 @@ app.MapStaticAssets();
 
 app.UseSession();
 
+
+app.UseAuthSession();
+
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
@@ -63,14 +68,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-/* Д.З. Доповнити валідацію даних моделі реєстрації 
- * нового користувача:
- * - пароль не порожній
- * - повтор збігається з паролем
- * - є погодження з умовами сайту (agree)
- * * пароль відповідає вимогам надійності
- * На представленні вивести відповідні помилки за наявності
- * 
- * Для пошти перевірити доступ SMTP, зокрема для Гугл необхідна
- * двофакторна автентифікація
+/* Д.З. Реалізувати виведення помилок автентифікації
+ * у складі модального вікна (у нижній лівій частині).
+ * Використати bootstrap стилізацію (alert).
+ * Стилізувати літеру авторизації (у Layout) - як кольоровий круг
+ * з підказкою з повним іменем
  */

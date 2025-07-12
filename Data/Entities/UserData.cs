@@ -1,4 +1,6 @@
-﻿namespace ASP_P26.Data.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ASP_P26.Data.Entities
 {
     public class UserData
     {
@@ -10,6 +12,7 @@
         public DateTime? DeletedAt { get; set; }
 
         // інверсна навігаційна властивість - властивість у іншій сутності по відношенню до даної
+        [JsonIgnore]
         public List<UserAccess> UserAccesses { get; set; } = [];
     }
 }

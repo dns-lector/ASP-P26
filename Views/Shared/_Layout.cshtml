@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using ASP_P26.Data.Entities
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -42,6 +43,12 @@
                                 data-bs-toggle="modal" data-bs-target="#authModal">
                             <i class="bi bi-box-arrow-in-right"></i>
                         </button>
+
+                        @if (Context.Items["userAccess"] is UserAccess userAccess)
+                        {
+                            <b>@userAccess.UserData.Name[0]</b>
+                        }
+
                     </div>
                 </div>
             </div>

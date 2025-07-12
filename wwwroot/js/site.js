@@ -30,7 +30,24 @@ document.addEventListener('submit', e => {
             loginInput.classList.add('is-invalid');
             return;
         }
-        console.log(loginInput.value, passwordInput.value);
+        // RFC 7617 
+        const credentials = new Base64().encode(
+            `${loginInput.value}:${passwordInput.value}`);
+
+        fetch('/User/SignIn', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`
+            }
+        }).then(r => r.json())
+            .then(j => {
+                if (j.status == 200) {
+                    window.location.reload();
+                }
+                else {
+                    alert("Rejected");
+                }
+            });
     }
 });
 
