@@ -25,6 +25,11 @@ namespace ASP_P26.Controllers
             return View();
         }
 
+        public ViewResult Spa()
+        {
+            return View();
+        }
+
         public IActionResult Ioc()
         {
             ViewData["timestamp"] = _timeService.Timestamp() + " -- " + _randomService.Otp();

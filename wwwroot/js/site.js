@@ -51,11 +51,13 @@ document.addEventListener('submit', e => {
     }
 });
 
-/* Д.З. Реєстрація: доповнити валідацію даних перевіркою 
-всіх необхідних даних.
-Автентифікація: забезпечити перевірку логіна/паролю на 
-порожність, виводити invalid-feedback повідомлення 
-відповідного змісту.
-Реалізувати зміну статусів полів введення (валідний/невалідний/неперевірений)
-при змінах їх статусів.
-        */
+function navigate(route) {
+    const spaContainer = document.getElementById("spa-container");
+    if (!spaContainer) throw "spa-container not found";
+    switch (route) {
+        case 'home':    spaContainer.innerHTML = `<b>Home</b>`;    break;
+        case 'privacy': spaContainer.innerHTML = `<b>privacy</b>`; break;
+        case 'auth':    spaContainer.innerHTML = `<b>auth</b>`;    break;
+        default:        spaContainer.innerHTML = `<b>404</b>`;
+    }
+}

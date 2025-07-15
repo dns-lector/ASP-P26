@@ -1,4 +1,11 @@
 ﻿@using ASP_P26.Data.Entities
+@using System.Security.Claims
+@{
+    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+    String nameLetter = isAuthenticated 
+    ? Context.User.Claims.First(c => c.Type == ClaimTypes.Name).Value
+    : "";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,20 +42,26 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Ioc">IoC</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Spa">SPA</a>
+                        </li>
                     </ul>
-                    <div>
-                        <a class="btn btn-outline-secondary" asp-controller="User" asp-action="SignUp"><i class="bi bi-person-circle"></i></a>
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-outline-secondary"
-                                data-bs-toggle="modal" data-bs-target="#authModal">
-                            <i class="bi bi-box-arrow-in-right"></i>
-                        </button>
-
-                        @if (Context.Items["userAccess"] is UserAccess userAccess)
+                    <div>      
+                        @if (isAuthenticated)
                         {
-                            <b>@userAccess.UserData.Name[0]</b>
+                            <b>@nameLetter</b>
+                            <a class="btn btn-outline-secondary" href="?logout"><i class="bi bi-box-arrow-right"></i></a>
+                            
                         }
-
+                        else
+                        {
+                            <a class="btn btn-outline-secondary" asp-controller="User" asp-action="SignUp"><i class="bi bi-person-circle"></i></a>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-outline-secondary"
+                                    data-bs-toggle="modal" data-bs-target="#authModal">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                            </button>
+                        }
                     </div>
                 </div>
             </div>
@@ -104,3 +117,12 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+@*
+    current https://site.com/Home/Privacy
+
+    <a href="IoC"> --> https://site.com/Home/IoC
+    <a href="/IoC"> --> https://site.com/IoC
+    <a href="?IoC=1"> --> https://site.com/Home/Privacy?IoC=1
+    <a href="#IoC"> --> https://site.com/Home/Privacy#IoC
+    <a href="//other.site"> --> https://other.site
+*@
