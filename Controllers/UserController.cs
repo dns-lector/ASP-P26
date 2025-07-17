@@ -3,6 +3,7 @@ using ASP_P26.Data.Entities;
 using ASP_P26.Models.User;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
+using ASP_P26.Services.Time;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Buffers.Text;
@@ -14,33 +15,27 @@ namespace ASP_P26.Controllers
         IRandomService randomService,
         DataContext dataContext,
         ILogger<UserController> logger,
+        ITimeService timeService,
         IKdfService kdfService) : Controller
     {
         private readonly IRandomService _randomService = randomService;
         private readonly IKdfService _kdfService = kdfService;
         private readonly DataContext _dataContext = dataContext;
         private readonly ILogger<UserController> _logger = logger;
+        private readonly ITimeService _timeService = timeService;
 
-        [HttpGet]
-        public JsonResult SignIn()
+        private UserAccess Authenticate()
         {
             // Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
             String authHeader = Request.Headers.Authorization.ToString();  // Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
             if (String.IsNullOrEmpty(authHeader))
             {
-                return Json(new { 
-                    Status = 401,
-                    Data = "Missing 'Authorization' header"
-                });
+                throw new Exception("Missing 'Authorization' header");
             }
             String authScheme = "Basic ";
-            if( ! authHeader.StartsWith(authScheme))
+            if (!authHeader.StartsWith(authScheme))
             {
-                return Json(new
-                {
-                    Status = 401,
-                    Data = $"Authorization scheme error: '{authScheme}' only"
-                });
+                throw new Exception($"Authorization scheme error: '{authScheme}' only");
             }
             String credentials = authHeader[authScheme.Length..];  // QWxhZGRpbjpvcGVuIHNlc2FtZQ==
             String decoded;
@@ -52,22 +47,14 @@ namespace ASP_P26.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("SignIn: {ex}", ex.Message);
-                return Json(new
-                {
-                    Status = 401,
-                    Data = $"Authorization credentials decode error"
-                });
+                throw new Exception($"Authorization credentials decode error");
             }
             String[] parts = decoded.Split(':', 2);
             if (parts.Length != 2)
             {
-                return Json(new
-                {
-                    Status = 401,
-                    Data = $"Authorization credentials decompose error"
-                });
+                throw new Exception($"Authorization credentials decompose error");
             }
-            String login    = parts[0];
+            String login = parts[0];
             String password = parts[1];
             var userAccess = _dataContext
                 .UserAccesses
@@ -78,22 +65,74 @@ namespace ASP_P26.Controllers
 
             if (userAccess == null)
             {
-                return Json(new
-                {
-                    Status = 401,
-                    Data = $"Authorization credentials rejected"
-                });
+                throw new Exception($"Authorization credentials rejected");
             }
-            if(_kdfService.Dk(password, userAccess.Salt) != userAccess.Dk)
+            if (_kdfService.Dk(password, userAccess.Salt) != userAccess.Dk)
+            {
+                throw new Exception($"Authorization credentials rejected.");
+            }
+            return userAccess;
+        }
+
+        [HttpGet]
+        public JsonResult LogIn()
+        {
+            UserAccess userAccess;
+            try
+            {
+                userAccess = Authenticate();
+            }
+            catch (Exception ex)
             {
                 return Json(new
                 {
                     Status = 401,
-                    Data = $"Authorization credentials rejected."
+                    Data = ex.Message
+                });
+            }
+            // Токени.
+            // цифрові "посвідчення", що несуть інформацію про користувача
+            // За прямою наявністю інформації токени поділяють на 
+            //  JWT - з наявністю інформації
+            //  Bearer - лише з ідентифікатором токена
+
+            // створюємо новий токен
+            AccessToken accessToken = new()
+            {
+                Jti = Guid.NewGuid().ToString(),
+                Sub = userAccess.Id,
+                Iat = _timeService.Timestamp().ToString(),
+                Exp = (_timeService.Timestamp() + (long)1e5).ToString(),
+                Iss = nameof(ASP_P26),
+                Aud = userAccess.RoleId
+            };
+
+            return Json(new
+            {
+                Status = 200,
+                Data = accessToken
+            });
+        }
+
+        [HttpGet]
+        public JsonResult SignIn()
+        {
+            UserAccess userAccess;
+            try
+            {
+                userAccess = Authenticate();
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Status = 401,
+                    Data = ex.Message
                 });
             }
             HttpContext.Session.SetString("userAccess",
                 JsonSerializer.Serialize(userAccess));
+
             return Json(new {
                 Status = 200,
                 Data = "OK"

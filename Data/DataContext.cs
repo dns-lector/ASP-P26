@@ -8,6 +8,7 @@ namespace ASP_P26.Data
         public DbSet<UserData> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<UserAccess> UserAccesses { get; set; }
+        public DbSet<AccessToken> AccessTokens { get; set; }
 
 
         public DataContext(DbContextOptions options) : base(options) { }
@@ -27,6 +28,16 @@ namespace ASP_P26.Data
                 .HasOne(ua => ua.UserRole)
                 .WithMany(ur => ur.UserAccesses)
                 .HasForeignKey(ua => ua.RoleId);
+
+
+            modelBuilder.Entity<AccessToken>()
+                .HasKey(at => at.Jti);
+
+            modelBuilder.Entity<AccessToken>()
+                .HasOne(at => at.UserAccess)
+                .WithMany()
+                .HasForeignKey(at => at.Sub);
+
 
             modelBuilder.ApplyConfiguration(new Configurations.RoleConfiguration());
         }

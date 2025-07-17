@@ -51,13 +51,86 @@ document.addEventListener('submit', e => {
     }
 });
 
-function navigate(route) {
+document.addEventListener('DOMContentLoaded', () => {
+    for (let btn of document.querySelectorAll('[data-nav]')) {
+        btn.onclick = navigate;
+    }
+});
+
+function navigate(e) {
+    const targetBtn = e.target.closest('[data-nav]');
+    const route = targetBtn.getAttribute('data-nav');
+    if (!route) throw "Attribute [data-nav] not found";
+    for (let btn of document.querySelectorAll('[data-nav]')) {
+        btn.classList.remove("active");
+    }
+    targetBtn.classList.add("active");
+    showPage(route);
+}
+
+function showPage(page) {
+    window.activePage = page;
     const spaContainer = document.getElementById("spa-container");
     if (!spaContainer) throw "spa-container not found";
-    switch (route) {
+    switch (page) {
         case 'home':    spaContainer.innerHTML = `<b>Home</b>`;    break;
         case 'privacy': spaContainer.innerHTML = `<b>privacy</b>`; break;
-        case 'auth':    spaContainer.innerHTML = `<b>auth</b>`;    break;
+        case 'auth':    spaContainer.innerHTML = !!window.accessToken ? profileHtml : authHtml;    break;
         default:        spaContainer.innerHTML = `<b>404</b>`;
     }
 }
+
+const profileHtml = `<div>
+<h3>Вітаємо у кабінеті</h3>
+<button type="button" class="btn btn-warning" onclick="exitClick()">Вихід</button>
+</div>`;
+
+const authHtml = `<div>
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="user-login-addon"><i class="bi bi-key"></i></span>
+        <input name="user-login" type="text" class="form-control"
+                placeholder="Логін" aria-label="Логін" aria-describedby="user-login-addon">
+        <div class="invalid-feedback"></div>
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="user-password-addon"><i class="bi bi-lock"></i></span>
+        <input name="user-password" type="password" class="form-control" placeholder="Пароль"
+                aria-label="Пароль" aria-describedby="user-password-addon">
+        <div class="invalid-feedback"></div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="authClick()">Вхід</button>
+</div>`;
+
+function exitClick() {
+    window.accessToken = null;
+    showPage(window.activePage);
+}
+
+function authClick() {
+    const login = document.querySelector('input[name="user-login"]').value;
+    const password = document.querySelector('input[name="user-password"]').value;
+    console.log(login, password);
+
+    const credentials = new Base64().encode(`${login}:${password}`);
+    fetch('/User/LogIn', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Basic ${credentials}`
+        }
+    }).then(r => r.json())
+        .then(j => {
+            if (j.status == 200) {
+                window.accessToken = j.data;
+                // console.log(window.accessToken);
+                showPage(window.activePage);
+            }
+            else {
+                alert("Rejected");
+            }
+        });
+}
+/*
+Д.З. Реалізувати контроль за терміном придатності токена (Exp)
+Автоматично виходити з автентифікованого режиму при добіганні
+кінця терміну. Роздільна здатність - 1 секунда.
+*/
