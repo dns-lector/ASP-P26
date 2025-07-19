@@ -82,6 +82,7 @@ function showPage(page) {
 
 const profileHtml = `<div>
 <h3>Вітаємо у кабінеті</h3>
+<button type="button" class="btn btn-success" onclick="emailClick()">Лист</button>
 <button type="button" class="btn btn-warning" onclick="exitClick()">Вихід</button>
 </div>`;
 
@@ -100,6 +101,16 @@ const authHtml = `<div>
     </div>
     <button type="button" class="btn btn-primary" onclick="authClick()">Вхід</button>
 </div>`;
+
+function emailClick() {
+    fetch("/User/Email", {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + window.accessToken.jti
+        }
+    }).then(r => r.json())
+        .then(console.log);
+}
 
 function exitClick() {
     window.accessToken = null;

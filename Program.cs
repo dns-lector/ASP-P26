@@ -1,5 +1,6 @@
 using ASP_P26.Data;
 using ASP_P26.Middleware.Auth;
+using ASP_P26.Services.Email;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
@@ -8,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("emailsettings.json");
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -15,6 +18,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IRandomService, DefaultRandomService>();
 builder.Services.AddSingleton<ITimeService, MillisecTimeService>();
 builder.Services.AddSingleton<IKdfService, PbKdfService>();
+builder.Services.AddSingleton<IEmailService, GmailService>();
 
 builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(
@@ -51,9 +55,9 @@ app.MapStaticAssets();
 
 app.UseSession();
 
-
 app.UseAuthSession();
 
+app.UseAuthToken();
 
 app.MapControllerRoute(
     name: "default",

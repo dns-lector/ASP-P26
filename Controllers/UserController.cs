@@ -1,6 +1,7 @@
 ﻿using ASP_P26.Data;
 using ASP_P26.Data.Entities;
 using ASP_P26.Models.User;
+using ASP_P26.Services.Email;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
@@ -16,6 +17,7 @@ namespace ASP_P26.Controllers
         DataContext dataContext,
         ILogger<UserController> logger,
         ITimeService timeService,
+        IEmailService emailService,
         IKdfService kdfService) : Controller
     {
         private readonly IRandomService _randomService = randomService;
@@ -23,6 +25,44 @@ namespace ASP_P26.Controllers
         private readonly DataContext _dataContext = dataContext;
         private readonly ILogger<UserController> _logger = logger;
         private readonly ITimeService _timeService = timeService;
+        private readonly IEmailService _emailService = emailService;
+
+        [HttpPost]
+        public JsonResult Email()
+        {
+            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
+            {
+                // try
+                // {
+                //     _emailService.Send(
+                //         "azure.spd111.od.0@ukr.net",
+                //         "ASP - P26",
+                //         "Hello, World!");
+                // }
+                // catch (Exception ex)
+                // {
+                //     return Json(new
+                //     {
+                //         Status = 500,
+                //         Data = ex.Message
+                //     });
+                // }
+                
+                return Json(new
+                {
+                    Status = 200,
+                    Data = "Ok"
+                });
+            }
+            else
+            {
+                return Json(new
+                {
+                    Status = 401,
+                    Data = "UnAuthorized"
+                });
+            }
+        }
 
         private UserAccess Authenticate()
         {
@@ -106,6 +146,9 @@ namespace ASP_P26.Controllers
                 Iss = nameof(ASP_P26),
                 Aud = userAccess.RoleId
             };
+
+            _dataContext.AccessTokens.Add(accessToken);
+            _dataContext.SaveChanges();
 
             return Json(new
             {

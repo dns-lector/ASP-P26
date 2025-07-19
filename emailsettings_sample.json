@@ -1,0 +1,10 @@
+{
+  "Email": {
+    "Gmail": {
+      "Host": "smtp.gmail.com",
+      "Port": 587,
+      "Box": "***YOUR EMAIL BOX***",
+      "AppKey": "***YOUR APP KEY***"
+    }
+  }
+}
