@@ -106,7 +106,7 @@ function emailClick() {
     fetch("/User/Email", {
         method: "POST",
         headers: {
-            "Authorization": "Bearer " + window.accessToken.jti
+            "Authorization": "Bearer " + window.accessToken + "1"  // window.accessToken.jti
         }
     }).then(r => r.json())
         .then(console.log);

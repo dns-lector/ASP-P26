@@ -2,6 +2,7 @@
 using ASP_P26.Data.Entities;
 using ASP_P26.Models.User;
 using ASP_P26.Services.Email;
+using ASP_P26.Services.Jwt;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
@@ -18,6 +19,7 @@ namespace ASP_P26.Controllers
         ILogger<UserController> logger,
         ITimeService timeService,
         IEmailService emailService,
+        IJwtService jwtService,
         IKdfService kdfService) : Controller
     {
         private readonly IRandomService _randomService = randomService;
@@ -26,6 +28,7 @@ namespace ASP_P26.Controllers
         private readonly ILogger<UserController> _logger = logger;
         private readonly ITimeService _timeService = timeService;
         private readonly IEmailService _emailService = emailService;
+        private readonly IJwtService _jwtService = jwtService;
 
         [HttpPost]
         public JsonResult Email()
@@ -150,10 +153,22 @@ namespace ASP_P26.Controllers
             _dataContext.AccessTokens.Add(accessToken);
             _dataContext.SaveChanges();
 
+            var jwt = new
+            {
+                accessToken.Jti,
+                accessToken.Sub,
+                accessToken.Iat,
+                accessToken.Exp,
+                accessToken.Iss,
+                accessToken.Aud,
+                userAccess.UserData.Name,
+                userAccess.UserData.Email,
+            };
+
             return Json(new
             {
                 Status = 200,
-                Data = accessToken
+                Data = _jwtService.EncodeJwt(jwt)
             });
         }
 

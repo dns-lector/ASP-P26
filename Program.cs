@@ -1,6 +1,7 @@
 using ASP_P26.Data;
 using ASP_P26.Middleware.Auth;
 using ASP_P26.Services.Email;
+using ASP_P26.Services.Jwt;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
@@ -19,6 +20,7 @@ builder.Services.AddSingleton<IRandomService, DefaultRandomService>();
 builder.Services.AddSingleton<ITimeService, MillisecTimeService>();
 builder.Services.AddSingleton<IKdfService, PbKdfService>();
 builder.Services.AddSingleton<IEmailService, GmailService>();
+builder.Services.AddSingleton<IJwtService, JwtServiceV1>();
 
 builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(
@@ -57,7 +59,8 @@ app.UseSession();
 
 app.UseAuthSession();
 
-app.UseAuthToken();
+// app.UseAuthToken();
+app.UseAuthJwt();
 
 app.MapControllerRoute(
     name: "default",
@@ -72,9 +75,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-/* Д.З. Реалізувати виведення помилок автентифікації
- * у складі модального вікна (у нижній лівій частині).
- * Використати bootstrap стилізацію (alert).
- * Стилізувати літеру авторизації (у Layout) - як кольоровий круг
- * з підказкою з повним іменем
+/* Д.З. Реалізувати систему автентифікації та авторизації
+ * у власному курсовому проєкті.
  */
