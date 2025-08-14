@@ -6,7 +6,6 @@ using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +74,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-/* Д.З. Реалізувати систему автентифікації та авторизації
+/* Д.З. Реалізувати сторінку профілю користувача з можливістю редагування даних
  * у власному курсовому проєкті.
  */

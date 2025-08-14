@@ -9,6 +9,7 @@ using ASP_P26.Services.Time;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Buffers.Text;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace ASP_P26.Controllers
@@ -195,6 +196,54 @@ namespace ASP_P26.Controllers
                 Status = 200,
                 Data = "OK"
             });
+        }
+
+        public ViewResult Profile(String id)
+        {
+            UserProfilePageModel model = new();
+            var ua = _dataContext  // визначаємо чий профіль запитано
+                .UserAccesses
+                .AsNoTracking()
+                .Include(ua => ua.UserData)
+                .Include(ua => ua.UserRole)
+                .FirstOrDefault(ua => ua.Login == id);
+            if (ua == null)
+            {
+                model.IsPersonal = null;
+            }
+            else
+            {
+                model.Name = ua.UserData.Name;
+                model.RegisteredAt = ua.UserData.RegisteredAt;
+
+                bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+                if (isAuthenticated)
+                {
+                    model.Email = ua.UserData.Email;
+
+                    // дістаємо свій логін (з яким автентифіковані)
+                    String userLogin = HttpContext
+                        .User
+                        .Claims
+                        .First(c => c.Type == ClaimTypes.Sid)
+                        .Value;                   
+
+                    if (ua.Login == userLogin)  // Перегляд свого профілю
+                    {
+                        model.IsPersonal = true;
+                        model.Birthdate = ua.UserData.Birthdate;
+                    }
+                    else  // Перегляд профілю іншого користувача
+                    {
+                        model.IsPersonal = false;
+                    }                    
+                }
+                else  // Перегляд невідомого профілю у неавторизованому режимі
+                {
+                    model.IsPersonal = false;
+                }
+            }                
+            return View(model);
         }
 
         public ViewResult SignUp()

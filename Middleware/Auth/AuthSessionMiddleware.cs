@@ -41,8 +41,9 @@ namespace ASP_P26.Middleware.Auth
                     new ClaimsIdentity(
                         new Claim[]
                         {
-                            new(ClaimTypes.Name, ua.UserData.Name),
-                            new(ClaimTypes.Email, ua.UserData.Email)
+                            new(ClaimTypes.Name,  ua.UserData.Name),
+                            new(ClaimTypes.Email, ua.UserData.Email),
+                            new(ClaimTypes.Sid,   ua.Login),
                         },
                         nameof(AuthSessionMiddleware)
                     )

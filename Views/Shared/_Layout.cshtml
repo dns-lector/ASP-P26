@@ -5,6 +5,9 @@
     String nameLetter = isAuthenticated 
     ? Context.User.Claims.First(c => c.Type == ClaimTypes.Name).Value
     : "";
+    String userLogin = isAuthenticated 
+    ? Context.User.Claims.First(c => c.Type == ClaimTypes.Sid).Value
+    : "";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +52,12 @@
                     <div>      
                         @if (isAuthenticated)
                         {
-                            <b>@nameLetter</b>
+                            <a class="text-dark" 
+                                asp-area="" 
+                                asp-controller="User"
+                                asp-action="Profile"
+                                asp-route-id="@userLogin"><b>@nameLetter</b></a>
+                            
                             <a class="btn btn-outline-secondary" href="?logout"><i class="bi bi-box-arrow-right"></i></a>
                             
                         }

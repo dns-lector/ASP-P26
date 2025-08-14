@@ -1,0 +1,47 @@
+﻿@model ASP_P26.Models.User.UserProfilePageModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Кабінет користувача</h1>
+</div>
+
+<div class="row">
+    <div class="col col-xxl-6 offset-xxl-3   col-xl-8 offset-xl-2  col-md-10 offset-md-1   col-sm-12">
+        @if (Model.IsPersonal == null)
+        {
+            <div class="alert alert-danger" role="alert">
+                Даний профіль не існує або був видалений
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col">Ім'я</div>
+                <div class="col" data-editable="Name">@Model.Name</div>
+            </div>
+            <div class="row">
+                <div class="col">На сайті з</div>
+                <div class="col">@Model.RegisteredAt</div>
+            </div>
+            <div class="row">
+                <div class="col">Email</div>
+                <div class="col">
+                    <span data-editable="Email">@Model.Email</span>                        
+                    *доступно тільки після входу
+                </div>
+            </div>
+            if (Model.IsPersonal ?? false)
+            {
+                <div class="row">
+                    <div class="col">Дата народження</div>
+                    <div class="col">@Model.Birthdate</div>
+                </div>
+                <button id="edit-profile-btn" class="btn btn-outline-warning"><i class="bi bi-pen"></i></button>
+            }
+        }
+
+    </div>
+</div>
+

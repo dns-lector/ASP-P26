@@ -55,7 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let btn of document.querySelectorAll('[data-nav]')) {
         btn.onclick = navigate;
     }
+    const editProfileBtn = document.getElementById("edit-profile-btn");
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', editProfileBtnClick);
+    }
 });
+
+function editProfileBtnClick() {
+    for (let elem of document.querySelectorAll('[data-editable]')) {
+        if (elem.getAttribute('contenteditable')) {
+            elem.removeAttribute('contenteditable');
+        }
+        else {
+            elem.setAttribute('contenteditable', true);
+        }
+    }
+}
 
 function navigate(e) {
     const targetBtn = e.target.closest('[data-nav]');
