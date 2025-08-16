@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Buffers.Text;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace ASP_P26.Controllers
@@ -17,6 +18,7 @@ namespace ASP_P26.Controllers
     public class UserController(
         IRandomService randomService,
         DataContext dataContext,
+        DataAccessor dataAccessor,
         ILogger<UserController> logger,
         ITimeService timeService,
         IEmailService emailService,
@@ -26,6 +28,7 @@ namespace ASP_P26.Controllers
         private readonly IRandomService _randomService = randomService;
         private readonly IKdfService _kdfService = kdfService;
         private readonly DataContext _dataContext = dataContext;
+        private readonly DataAccessor _dataAccessor = dataAccessor;
         private readonly ILogger<UserController> _logger = logger;
         private readonly ITimeService _timeService = timeService;
         private readonly IEmailService _emailService = emailService;
@@ -198,15 +201,96 @@ namespace ASP_P26.Controllers
             });
         }
 
+        [HttpPatch]
+        public async Task<JsonResult> UpdateAsync()
+        {
+            bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+            if (!isAuthenticated)
+            {
+                return Json(new
+                {
+                    Status = 401,
+                    Data = "UnAuthorized"
+                });
+            }
+            var userLogin = HttpContext
+                .User
+                .Claims
+                .First(c => c.Type == ClaimTypes.Sid)
+                .Value;
+
+            var ua = _dataAccessor.GetUserAccessByLogin(userLogin, isEditable: true);
+            if(ua == null)
+            {
+                return Json(new
+                {
+                    Status = 403,
+                    Data = "Forbidden"
+                });
+            }
+
+            // Звертаємось до тіла запиту напряму, зчитуємо як String
+            using StreamReader reader = new(Request.Body, Encoding.UTF8);            
+            var requestBody = await reader.ReadToEndAsync();
+            
+            if(requestBody == null)
+            {
+                return Json(new
+                {
+                    Status = 400,
+                    Data = "Body must not be empty"
+                });
+            }
+            JsonElement json;
+            try
+            {
+                json = JsonSerializer.Deserialize<JsonElement>(requestBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation("JSON decode error {ex}", ex.Message);
+                return Json(new
+                {
+                    Status = 400,
+                    Data = "Body must be valid JSON string"
+                });
+            }
+            if(json.ValueKind != JsonValueKind.Array)
+            {
+                return Json(new
+                {
+                    Status = 422,
+                    Data = "Body must be JSON array"
+                });
+            }
+            foreach(var element in json.EnumerateArray())
+            {
+                String value = element.GetProperty("value").GetString()!;
+                String field = element.GetProperty("field").GetString()!;
+                switch(field)
+                {
+                    case "Name": ua.UserData.Name = value; break;
+                    case "Email": ua.UserData.Email = value; break;
+                    default:
+                        return Json(new
+                        {
+                            Status = 409,
+                            Data = $"Conflict: undefined field '{field}' "
+                        });
+                }
+            }
+            await _dataContext.SaveChangesAsync();
+            return Json(new
+            {
+                Status = 202,
+                Data = "Accepted"
+            });
+        }
+
         public ViewResult Profile(String id)
         {
             UserProfilePageModel model = new();
-            var ua = _dataContext  // визначаємо чий профіль запитано
-                .UserAccesses
-                .AsNoTracking()
-                .Include(ua => ua.UserData)
-                .Include(ua => ua.UserRole)
-                .FirstOrDefault(ua => ua.Login == id);
+            var ua = _dataAccessor.GetUserAccessByLogin(id);
             if (ua == null)
             {
                 model.IsPersonal = null;

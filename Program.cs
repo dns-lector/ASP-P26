@@ -25,6 +25,7 @@ builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("LocalDb"))
 );
+builder.Services.AddScoped<DataAccessor>();
 
 
 builder.Services.AddDistributedMemoryCache();
@@ -74,6 +75,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-/* Д.З. Реалізувати сторінку профілю користувача з можливістю редагування даних
+/* Д.З. Реалізувати концепцію DataAccessor - шару доступу до даних
  * у власному курсовому проєкті.
  */

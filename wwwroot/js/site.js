@@ -62,12 +62,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function editProfileBtnClick() {
+    let changes = [];
     for (let elem of document.querySelectorAll('[data-editable]')) {
         if (elem.getAttribute('contenteditable')) {
             elem.removeAttribute('contenteditable');
+            // console.log(elem.originalData, elem.innerText);
+            if (elem.originalData != elem.innerText) {
+                changes.push({
+                    field: elem.getAttribute('data-editable'),
+                    value: elem.innerText
+                });
+            }
         }
         else {
             elem.setAttribute('contenteditable', true);
+            elem.originalData = elem.innerText;
+        }
+    }
+    if (changes.length > 0) {
+        const msg = changes.map(c => `${c.field}=${c.value}`).join(', ');
+        if (confirm(`Підтверджуєте зміни: ${msg}`)) {
+            fetch("/User/Update", {
+                method: 'PATCH',
+                header: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(changes)
+            }).then(r => r.json()).then(console.log);
         }
     }
 }
