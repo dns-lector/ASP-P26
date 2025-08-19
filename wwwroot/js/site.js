@@ -59,7 +59,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editProfileBtn) {
         editProfileBtn.addEventListener('click', editProfileBtnClick);
     }
+    const deleteProfileBtn = document.getElementById("delete-profile-btn");
+    if (deleteProfileBtn) {
+        deleteProfileBtn.addEventListener('click', deleteProfileBtnClick);
+    }
 });
+
+function deleteProfileBtnClick() {
+    if (confirm(`Підтверджуєте видалення профілю?`)) {
+        let login = prompt("Для підтвердження введіть свій логін:");
+        console.log(login)
+        if (!login || !login.trim()) {
+            alert("Deletion cancelled.");
+            return;
+        }
+        fetch("/User/Delete", {
+            method: 'DELETE',
+            headers: {
+                'Authentication-Control': new Base64().encodeUrl(login)
+            }
+        }).then(r => r.json()).then(j => {
+            console.log(j);
+            if (j.status == 200) {
+                alert("Ваш профіль видалено");
+                window.location = '/';
+            }
+            else {
+                alert("Ваш профіль НЕ видалено. Імовірно неправильне підтвердження");
+            }
+        });
+    }
+}
 
 function editProfileBtnClick() {
     let changes = [];
@@ -84,8 +114,8 @@ function editProfileBtnClick() {
         if (confirm(`Підтверджуєте зміни: ${msg}`)) {
             fetch("/User/Update", {
                 method: 'PATCH',
-                header: {
-                    'Content-Type': 'application/json'
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
                 },
                 body: JSON.stringify(changes)
             }).then(r => r.json()).then(console.log);

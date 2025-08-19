@@ -6,6 +6,8 @@ using ASP_P26.Services.Jwt;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
 using ASP_P26.Services.Time;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Buffers.Text;
@@ -33,6 +35,8 @@ namespace ASP_P26.Controllers
         private readonly ITimeService _timeService = timeService;
         private readonly IEmailService _emailService = emailService;
         private readonly IJwtService _jwtService = jwtService;
+
+        const String authSessionKey = "userAccess";
 
         [HttpPost]
         public JsonResult Email()
@@ -103,12 +107,7 @@ namespace ASP_P26.Controllers
             }
             String login = parts[0];
             String password = parts[1];
-            var userAccess = _dataContext
-                .UserAccesses
-                .AsNoTracking()
-                .Include(ua => ua.UserData)
-                .Include(ua => ua.UserRole)
-                .FirstOrDefault(ua => ua.Login == login);
+            var userAccess = _dataAccessor.GetUserAccessByLogin(login);
 
             if (userAccess == null)
             {
@@ -192,7 +191,7 @@ namespace ASP_P26.Controllers
                     Data = ex.Message
                 });
             }
-            HttpContext.Session.SetString("userAccess",
+            HttpContext.Session.SetString(authSessionKey,
                 JsonSerializer.Serialize(userAccess));
 
             return Json(new {
@@ -285,6 +284,63 @@ namespace ASP_P26.Controllers
                 Status = 202,
                 Data = "Accepted"
             });
+        }
+
+        [HttpDelete]
+        public async Task<JsonResult> DeleteAsync()
+        {
+            String authControl = HttpContext.Request.Headers["Authentication-Control"].ToString();
+            if (String.IsNullOrEmpty(authControl))
+            {
+                return Json(new
+                {
+                    Status = 400,
+                    Data = "Missing Header 'Authentication-Control'"
+                });
+            }
+            authControl = Encoding.UTF8.GetString(
+                Base64UrlTextEncoder.Decode(authControl));
+
+            bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+            if (!isAuthenticated)
+            {
+                return Json(new
+                {
+                    Status = 401,
+                    Data = "UnAuthorized"
+                });
+            }
+            String userLogin = HttpContext
+                .User
+                .Claims
+                .First(c => c.Type == ClaimTypes.Sid)
+                .Value;
+            if(userLogin != authControl)
+            {
+                return Json(new
+                {
+                    Status = 403,
+                    Data = "Forbidden"
+                });
+            }
+            bool isDeleted = await _dataAccessor.DeleteUserAsync(authControl);
+            if (isDeleted)
+            {
+                HttpContext.Session.Remove(authSessionKey);
+                return Json(new
+                {
+                    Status = 200,
+                    Data = "Deleted"
+                });
+            }
+            else
+            {
+                return Json(new
+                {
+                    Status = 409,
+                    Data = "Conflict. Not Deleted"
+                });
+            }
         }
 
         public ViewResult Profile(String id)
