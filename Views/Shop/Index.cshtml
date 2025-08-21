@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Shop";
+    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Крамниця</h1>
+</div>
+
+@if (isAuthenticated)
+{
+    <a asp-action="Admin">Робоче місце менеджера</a>
+}

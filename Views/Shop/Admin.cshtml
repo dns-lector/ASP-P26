@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Admin";
+    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Робоче місце менеджера</h1>
+</div>
+
+@if (isAuthenticated)
+{
+    <form id="product-add-form" action="/api/product" method="post" enctype="multipart/form-data">
+
+        <div class="mb-3">
+            @* <label for="basic-url" class="form-label">Назва товару</label> *@
+            <div class="input-group">
+                <span class="input-group-text" id="basic-addon3">Назва товару:</span>
+                <input name="product-name" type="text" class="form-control" id="basic-url" 
+                    aria-describedby="basic-addon3 basic-addon4"/>
+            </div>
+            <div class="form-text" id="basic-addon4">Введіть назву товару як вона буде показана на сайті.</div>
+        </div>
+
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="inputGroupFile01">Зображення товару</label>
+            <input name="product-img" type="file" class="form-control" id="inputGroupFile01" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Додати</button>
+    </form>
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        Для роботи з даними необхідний обліковий запис менеджера
+    </div>
+}
+
+
