@@ -9,6 +9,9 @@ namespace ASP_P26.Data
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<UserAccess> UserAccesses { get; set; }
         public DbSet<AccessToken> AccessTokens { get; set; }
+        public DbSet<ProductGroup> ProductGroups { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ItemImage> ItemImages { get; set; }
 
 
         public DataContext(DbContextOptions options) : base(options) { }
@@ -40,6 +43,11 @@ namespace ASP_P26.Data
 
 
             modelBuilder.ApplyConfiguration(new Configurations.RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.GroupConfiguration());
+
+            modelBuilder.Entity<ItemImage>()
+                .HasKey(i => new { i.ItemId, i.ImageUrl });
         }
     }
 }

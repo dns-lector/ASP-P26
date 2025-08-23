@@ -8,6 +8,15 @@ namespace ASP_P26.Data
         private readonly DataContext _dataContext = dataContext;
         private readonly ILogger<DataAccessor> _logger = logger;
 
+        public IEnumerable<ProductGroup> GetProductGroups()
+        {
+            return _dataContext
+                .ProductGroups
+                .AsNoTracking()
+                .Where(g => g.DeletedAt == null)
+                .AsEnumerable();
+        }
+
         public async Task<bool> DeleteUserAsync(String userLogin)
         {
             UserAccess? ua = await _dataContext

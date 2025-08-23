@@ -4,6 +4,7 @@ using ASP_P26.Services.Email;
 using ASP_P26.Services.Jwt;
 using ASP_P26.Services.Kdf;
 using ASP_P26.Services.Random;
+using ASP_P26.Services.Storage;
 using ASP_P26.Services.Time;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ builder.Services.AddSingleton<ITimeService, MillisecTimeService>();
 builder.Services.AddSingleton<IKdfService, PbKdfService>();
 builder.Services.AddSingleton<IEmailService, GmailService>();
 builder.Services.AddSingleton<IJwtService, JwtServiceV1>();
+builder.Services.AddSingleton<IStorageService, DiskStorageService>();
 
 builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(
@@ -75,7 +77,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-/* Д.З. Реалізувати роботу з завантаженням/вивантаженням файлів,
+/* Д.З. Завершити роботу з завантаженням/вивантаженням файлів,
  * зокрема, зображень; сторінки типу АРМ (dashboard) з обмеженням доступу по ролях
+ * Додати сутності основного контенту, підготувати АРІ контролери для них
  * у власному курсовому проєкті.
  */

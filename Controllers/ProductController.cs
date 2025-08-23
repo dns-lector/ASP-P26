@@ -1,4 +1,5 @@
 ﻿using ASP_P26.Models.Api.Product;
+using ASP_P26.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -7,8 +8,10 @@ namespace ASP_P26.Controllers
 {
     [Route("api/product")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController(IStorageService storageService) : ControllerBase
     {
+        private readonly IStorageService _storageService = storageService;
+
         [HttpGet]
         public IEnumerable<String> ProductsList()
         {
@@ -18,17 +21,17 @@ namespace ASP_P26.Controllers
         [HttpPost]
         public async Task<object> CreateProduct(ApiProductFormModel model)
         {
-            // Виділяємо з імені файлу розширення (воно буде збережене у імені)
-            String ext = model.Image.FileName[model.Image.FileName.LastIndexOf('.')..];
-            // Генеруємо нове ім'я для збереження файлу
-            String savedName = Guid.NewGuid() + ext;
-            String path = "C:/storage/ASP26/" + savedName;
-            // Відкриваємо потік для збереження (не забуваємо автозакриття)
-            using Stream stream = new StreamWriter(path).BaseStream;
-            var copyTask = model.Image.CopyToAsync(stream);
-            // вносимо дані до БД
-
-            await copyTask;
+            String savedName;
+            try
+            {
+                // Перевіряємо на дозволеність розширення
+                _storageService.TryGetMimeType(model.Image.FileName);
+                savedName = await _storageService.SaveItemAsync(model.Image);
+            }
+            catch(Exception ex)
+            {
+                return new { status = "Fail", name = ex.Message };
+            }
             return new { status = "OK", name = savedName };
         }
     }

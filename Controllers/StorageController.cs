@@ -1,18 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ASP_P26.Services.Storage;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ASP_P26.Controllers
 {
-    public class StorageController : Controller
+    public class StorageController(IStorageService storageService) : Controller
     {
+        private readonly IStorageService _storageService = storageService;
+
         [HttpGet]
-        public IActionResult Index(String id)
+        public IActionResult Item(String id)
         {
-            String path = "C:/storage/ASP26/" + id;
-            if (System.IO.File.Exists(path))
+            try
             {
-                return File(System.IO.File.ReadAllBytes(path), "image/jpeg");
+                return File(
+                    _storageService.GetItemBytes(id), 
+                    _storageService.TryGetMimeType(id)
+                );
             }
-            return NotFound();
+            catch
+            {
+                return NotFound();
+            }
         }
     }
 }
