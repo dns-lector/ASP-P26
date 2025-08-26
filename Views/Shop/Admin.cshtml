@@ -9,6 +9,44 @@
 
 @if (isAuthenticated)
 {
+    <form id="group-add-form" action="/api/product-group" method="post" enctype="multipart/form-data">
+
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="group-name-addon">Назва товарної групи:</span>
+                <input name="group-name" type="text" class="form-control"
+                       aria-describedby="group-name-addon group-name-subtitle" />
+            </div>
+            <div class="form-text" id="group-name-subtitle">Введіть назву групи товарів (категорії) як вона буде показана на сайті.</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="group-description-addon">Опис товарної групи:</span>
+                <input name="group-description" type="text" class="form-control"
+                       aria-describedby="group-description-addon group-description-subtitle" />
+            </div>
+            <div class="form-text" id="group-description-subtitle">Детальний опис групи товарів (категорії) як вона буде показана на сайті.</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="group-slug-addon">Адреса товарної групи:</span>
+                <input name="group-slug" type="text" class="form-control"
+                       aria-describedby="group-slug-addon group-slug-subtitle" />
+            </div>
+            <div class="form-text" id="group-slug-subtitle">Частина адреси (slug) для товарної групи.</div>
+        </div>
+
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="group-img">Зображення для групи</label>
+            <input name="group-img" type="file" class="form-control" id="group-img" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Додати групу</button>
+    </form>
+
+
     <form id="product-add-form" action="/api/product" method="post" enctype="multipart/form-data">
 
         <div class="mb-3">

@@ -3,11 +3,13 @@ using ASP_P26.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ASP_P26.Filters;
 
 namespace ASP_P26.Controllers
 {
     [Route("api/product")]
     [ApiController]
+    [AuthorizationFilter]
     public class ProductController(IStorageService storageService) : ControllerBase
     {
         private readonly IStorageService _storageService = storageService;
