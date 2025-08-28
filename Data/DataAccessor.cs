@@ -1,5 +1,6 @@
 ﻿using ASP_P26.Data.Entities;
 using ASP_P26.Models.Api.Group;
+using ASP_P26.Models.Api.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASP_P26.Data
@@ -12,6 +13,11 @@ namespace ASP_P26.Data
         public bool IsGroupSlugUsed(String slug)
         {
             return _dataContext.ProductGroups.Any(g => g.Slug == slug);
+        }
+
+        public bool IsProductSlugUsed(String slug)
+        {
+            return _dataContext.Products.Any(g => g.Slug == slug);
         }
 
         public void AddProductGroup(ApiGroupDataModel model)
@@ -33,6 +39,35 @@ namespace ASP_P26.Data
             catch (Exception ex)
             {
                 _logger.LogError("AddProductGroup: {ex}", ex.Message);
+                throw;
+            }
+        }
+
+        public void AddProduct(ApiProductDataModel model)
+        {
+            Guid groupId;
+            try { groupId = Guid.Parse(model.GroupId); }
+            catch { throw; }
+
+            _dataContext.Products.Add(new()
+            {
+                GroupId = groupId,
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Description = model.Description,
+                Slug = model.Slug,
+                ImageUrl = model.ImageUrl,
+                Price = model.Price,
+                Stock = model.Stock,
+                DeletedAt = null,
+            });
+            try
+            {
+                _dataContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("AddProduct: {ex}", ex.Message);
                 throw;
             }
         }

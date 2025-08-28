@@ -5,7 +5,7 @@ using ASP_P26.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ASP_P26.Controllers
+namespace ASP_P26.Controllers.Api
 {
     [Route("api/product-group")]
     [ApiController]
@@ -16,8 +16,10 @@ namespace ASP_P26.Controllers
 
         private object AnyRequest()
         {
-            String methodName = "Execute" + HttpContext.Request.Method;
-            var type = this.GetType();
+            // ApiGroupFormModel model = new();
+            // TryUpdateModelAsync(model);
+            string methodName = "Execute" + HttpContext.Request.Method;
+            var type = GetType();
             var action = type.GetMethod(methodName, 
                 System.Reflection.BindingFlags.NonPublic 
                 | System.Reflection.BindingFlags.Instance);
@@ -52,10 +54,10 @@ namespace ASP_P26.Controllers
         }
 
         [HttpPost]
-        public Object ExecutePOST(ApiGroupFormModel formModel)
+        public object ExecutePOST(ApiGroupFormModel formModel)
         {
             // Валідація моделі
-            if (String.IsNullOrEmpty(formModel.Slug))
+            if (string.IsNullOrEmpty(formModel.Slug))
             {
                 return new { status = 400, name = "Slug could not be empty" };
             }
@@ -64,7 +66,7 @@ namespace ASP_P26.Controllers
                 return new { status = 409, name = "Slug is used by other group" };
             }
 
-            String savedName;
+            string savedName;
             try
             {
                 // Перевіряємо на дозволеність розширення
@@ -95,8 +97,7 @@ namespace ASP_P26.Controllers
         }
     }
 }
-/* Д.З. Реалізувати повну валідацію моделі товарної групи, у т.ч.
- * ParentId - якщо він є, то повинен бути валідним UUID
+/* Д.З. Реалізувати повну валідацію моделі товару.
  * Одержати статус виконання запиту на створення групи у JS,
  * у випадку успіху очистити форму, у будь-якому випадку видати
  * повідомлення щодо результату.

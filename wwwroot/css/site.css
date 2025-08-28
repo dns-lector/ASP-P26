@@ -34,9 +34,16 @@ body {
     border: 1px solid lightgray;
 }
 
-#group-add-form, product-add-form {
+#group-add-form, #product-add-form {
     border: 1px solid lightgray;
     border-radius: 6px;
     padding: 10px;
     margin: 10px;
+}
+
+.shop-logo {
+    background-image: url("/Storage/Item/logo.jpg");
+    background-size: cover;
+    width: 100%;
+    height: 30vh;
 }

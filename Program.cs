@@ -42,6 +42,11 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+app.UseRequestLocalization(opt =>
+{
+    opt.DefaultRequestCulture = new("en-US");
+});
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ASP_P26.Models.Shop.ShopAdminPageModel
+@{
     ViewData["Title"] = "Admin";
     bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
 }
@@ -49,22 +50,67 @@
 
     <form id="product-add-form" action="/api/product" method="post" enctype="multipart/form-data">
 
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="product-group-addon">Товарна група:</label>
+            <select name="product-group-id" class="form-select" id="product-group-addon">
+                @foreach(var option in Model.ProductGroups)
+                {
+                    <option value="@option.Value">@option.Content</option>
+                }
+            </select>
+        </div>
+
         <div class="mb-3">
-            @* <label for="basic-url" class="form-label">Назва товару</label> *@
             <div class="input-group">
-                <span class="input-group-text" id="basic-addon3">Назва товару:</span>
-                <input name="product-name" type="text" class="form-control" id="basic-url" 
-                    aria-describedby="basic-addon3 basic-addon4"/>
+                <span class="input-group-text" id="product-name-addon">Назва товару:</span>
+                <input name="product-name" type="text" class="form-control"
+                       aria-describedby="product-name-addon product-name-subtitle" />
             </div>
-            <div class="form-text" id="basic-addon4">Введіть назву товару як вона буде показана на сайті.</div>
+            <div class="form-text" id="group-name-subtitle">Введіть назву товару як вона буде показана на сайті.</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="product-description-addon">Опис товару:</span>
+                <input name="product-description" type="text" class="form-control"
+                       aria-describedby="product-description-addon product-description-subtitle" />
+            </div>
+            <div class="form-text" id="product-description-subtitle">Детальний опис товару як він буде показаний на сайті.</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="product-slug-addon">Адреса товару:</span>
+                <input name="product-slug" type="text" class="form-control"
+                       aria-describedby="product-slug-addon product-slug-subtitle" />
+            </div>
+            <div class="form-text" id="product-slug-subtitle">Частина адреси (slug) для сторінки товару.</div>
         </div>
 
         <div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile01">Зображення товару</label>
-            <input name="product-img" type="file" class="form-control" id="inputGroupFile01" />
+            <label class="input-group-text" for="product-img">Зображення для товару</label>
+            <input name="product-img" type="file" class="form-control" id="product-img" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Додати</button>
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="product-price-addon">Вартість товару:</span>
+                <input name="product-price" type="number" min="0" step="0.01" class="form-control"
+                       aria-describedby="product-price-addon product-price-subtitle" />
+            </div>
+            <div class="form-text" id="product-price-subtitle">Ціна товару для споживача, грн.</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" id="product-stock-addon">Кількість товару:</span>
+                <input name="product-stock" type="number" min="0" step="1" class="form-control"
+                       aria-describedby="product-stock-addon product-stock-subtitle" />
+            </div>
+            <div class="form-text" id="product-stock-subtitle">Кількість товару, що додається.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Додати товар</button>
     </form>
 }
 else

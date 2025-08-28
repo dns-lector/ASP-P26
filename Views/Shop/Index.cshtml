@@ -3,9 +3,7 @@
     bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Крамниця</h1>
-</div>
+<div class="shop-logo"></div>
 
 @if (isAuthenticated)
 {
