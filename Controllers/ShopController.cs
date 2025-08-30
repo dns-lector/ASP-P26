@@ -7,9 +7,32 @@ namespace ASP_P26.Controllers
     public class ShopController(DataAccessor dataAccessor) : Controller
     {
         private readonly DataAccessor _dataAccessor = dataAccessor;
+
         public IActionResult Index()
         {
-            return View();
+            ShopIndexPageModel model = new()
+            {
+                ProductGroups = _dataAccessor.GetProductGroups(),
+            };
+            return View(model);
+        }
+
+        public IActionResult Group([FromRoute] String id)
+        {
+            ShopGroupPageModel model = new()
+            {
+                ProductGroup = _dataAccessor.GetProductGroupBySlug(id),
+            };
+            return View(model);
+        }
+
+        public IActionResult Item([FromRoute] String id)
+        {
+            ShopItemPageModel model = new()
+            {
+                Product = _dataAccessor.GetProductBySlug(id),
+            };
+            return View(model);
         }
 
         public IActionResult Admin()

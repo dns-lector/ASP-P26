@@ -1,0 +1,13 @@
+﻿@model ASP_P26.Models.Shop.ShopItemPageModel
+
+
+@if (Model.Product == null)
+{
+    <div class="alert alert-danger" role="alert">
+        Запитаної позиції не існує
+    </div>
+}
+else
+{
+    @Model.Product.Name
+}

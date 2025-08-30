@@ -1,0 +1,17 @@
+﻿@model ASP_P26.Data.Entities.Product
+
+<div class="col">
+    <div class="card h-100">    
+        <img src="/Storage/Item/@(Model.ImageUrl)" class="card-img-top" alt="@Model.Name">
+        <div class="card-body">
+            <a asp-action="Item" asp-route-id="@(Model.Slug ?? Model.Id.ToString())" class="nav-link">
+                <h5 class="card-title">@Model.Name</h5>
+                <p class="card-text">@Model.Description</p>
+            </a>
+        </div>
+        <div class="card-footer bg-transparent d-flex justify-content-between">
+            <span>₴ @(Model.Price.ToString("F2"))</span>
+            <span>Наявно @(Model.Stock) шт</span>
+        </div>
+    </div>
+</div>

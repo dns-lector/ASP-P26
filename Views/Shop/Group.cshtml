@@ -1,0 +1,23 @@
+﻿@model ASP_P26.Models.Shop.ShopGroupPageModel
+
+@if (Model.ProductGroup == null)
+{
+    <div class="alert alert-danger" role="alert">
+        Запитаної групи не існує
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-4">
+        @foreach (var p in Model.ProductGroup.Products)
+        {
+            @Html.DisplayFor(m => p)
+        }
+    </div>
+}
+
+@*
+    Д.З. На сторінці товарної групи додати у верхній частині
+    зменшенний віджет з товарними групами у вигляді рядка, що 
+    скролиться. Використовувати шаблони відображення.
+*@

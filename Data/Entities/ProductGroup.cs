@@ -11,6 +11,6 @@
         public DateTime? DeletedAt   { get; set; }
 
         public ProductGroup? ParentGroup { get; set; }
-        public IEnumerable<Product> Products { get; set; } = [];
+        public ICollection<Product> Products { get; set; } = [];
     }
 }

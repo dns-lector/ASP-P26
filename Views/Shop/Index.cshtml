@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ASP_P26.Models.Shop.ShopIndexPageModel
+@{
     ViewData["Title"] = "Shop";
     bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
 }
@@ -9,3 +10,20 @@
 {
     <a asp-action="Admin">Робоче місце менеджера</a>
 }
+
+@* Шаблони представлень (DisplayTemplates) - спосіб відокремити
+    верстку, характерну для певного об'єкту (моделі).
+   - створється директорія DisplayTemplates (назва важлива) у директорії
+      представлення (Views/Shop)
+   - створюється представлення (View). Якщо назва відповідає імені типу
+      моделі, то вибір шаблона здійснюється автоматично.
+      Якщо тип моделі складний (на кшталт колекції) або назва неможлива,
+      то шаблон зазначається прямо @Html.DisplayFor(m => grp, "НазваШаблона")
+*@
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-4">
+    @foreach(var grp in Model.ProductGroups)
+    {
+        @Html.DisplayFor(m => grp)
+    }
+</div>
+

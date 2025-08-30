@@ -10,39 +10,11 @@ namespace ASP_P26.Data
         private readonly DataContext _dataContext = dataContext;
         private readonly ILogger<DataAccessor> _logger = logger;
 
-        public bool IsGroupSlugUsed(String slug)
-        {
-            return _dataContext.ProductGroups.Any(g => g.Slug == slug);
-        }
 
         public bool IsProductSlugUsed(String slug)
         {
             return _dataContext.Products.Any(g => g.Slug == slug);
         }
-
-        public void AddProductGroup(ApiGroupDataModel model)
-        {
-            _dataContext.ProductGroups.Add(new()
-            {
-                Id = Guid.NewGuid(),
-                Name = model.Name,
-                Description = model.Description,
-                Slug = model.Slug,
-                ImageUrl = model.ImageUrl,
-                ParentId = model.ParentId == null ? null : Guid.Parse(model.ParentId),
-                DeletedAt = null,
-            });
-            try
-            {
-                _dataContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("AddProductGroup: {ex}", ex.Message);
-                throw;
-            }
-        }
-
         public void AddProduct(ApiProductDataModel model)
         {
             Guid groupId;
@@ -71,7 +43,43 @@ namespace ASP_P26.Data
                 throw;
             }
         }
+        public Product? GetProductBySlug(String slug)
+        {
+            return _dataContext
+                .Products
+                .AsNoTracking()
+                .FirstOrDefault(p => 
+                    (p.Slug == slug || p.Id.ToString() == slug)
+                    && p.DeletedAt == null
+                );
+        }
 
+        public bool IsGroupSlugUsed(String slug)
+        {
+            return _dataContext.ProductGroups.Any(g => g.Slug == slug);
+        }
+        public void AddProductGroup(ApiGroupDataModel model)
+        {
+            _dataContext.ProductGroups.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Description = model.Description,
+                Slug = model.Slug,
+                ImageUrl = model.ImageUrl,
+                ParentId = model.ParentId == null ? null : Guid.Parse(model.ParentId),
+                DeletedAt = null,
+            });
+            try
+            {
+                _dataContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("AddProductGroup: {ex}", ex.Message);
+                throw;
+            }
+        }
         public IEnumerable<ProductGroup> GetProductGroups()
         {
             return _dataContext
@@ -80,6 +88,15 @@ namespace ASP_P26.Data
                 .Where(g => g.DeletedAt == null)
                 .AsEnumerable();
         }
+        public ProductGroup? GetProductGroupBySlug(String slug)
+        {
+            return _dataContext
+            .ProductGroups
+            .Include(g => g.Products)
+            .AsNoTracking()
+            .FirstOrDefault(g => g.Slug == slug && g.DeletedAt == null);
+        }
+
 
         public async Task<bool> DeleteUserAsync(String userLogin)
         {
