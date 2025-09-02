@@ -9,5 +9,27 @@
 }
 else
 {
-    @Model.Product.Name
+    <div class="row">
+        <div class="col col-4">
+            <img class="item-page-img" src="/Storage/Item/@(Model.Product.ImageUrl)" />
+            <img class="item-page-img" src="/Storage/Item/@(Model.Product.ImageUrl)" />
+            <img class="item-page-img" src="/Storage/Item/@(Model.Product.ImageUrl)" />
+        </div>
+        <div class="col col-8">
+            <h2>@Model.Product.Name</h2>
+            <h4>@Model.Product.Description</h4>
+            <h3>₴ @Model.Product.Price.ToString("F2")</h3>
+            @if (@Model.Product.Stock > 0)
+            {
+                <b>У наявності</b>
+                <br/>
+                <button data-product-id="@Model.Product.Id" class="btn btn-primary">У кошик</button>
+            }
+            else
+            {
+                <i>Немає в наявності</i>
+            }
+        </div>
+    </div>
+    
 }

@@ -10,6 +10,11 @@ namespace ASP_P26.Data
         private readonly DataContext _dataContext = dataContext;
         private readonly ILogger<DataAccessor> _logger = logger;
 
+        public void AddToCart(String userId, String productId)
+        {
+
+        }
+
 
         public bool IsProductSlugUsed(String slug)
         {

@@ -12,6 +12,8 @@ namespace ASP_P26.Data
         public DbSet<ProductGroup> ProductGroups { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ItemImage> ItemImages { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
 
         public DataContext(DbContextOptions options) : base(options) { }
@@ -48,6 +50,19 @@ namespace ASP_P26.Data
 
             modelBuilder.Entity<ItemImage>()
                 .HasKey(i => new { i.ItemId, i.ImageUrl });
+
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Carts)
+                .HasForeignKey(c => c.UserId);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Cart)
+                .WithMany(c => c.CartItems);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Product)
+                .WithMany();
         }
     }
 }

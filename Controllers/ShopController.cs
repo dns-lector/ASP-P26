@@ -35,6 +35,11 @@ namespace ASP_P26.Controllers
             return View(model);
         }
 
+        public IActionResult Cart()
+        {
+            return View();
+        }
+
         public IActionResult Admin()
         {
             ShopAdminPageModel model = new()
