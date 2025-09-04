@@ -1,4 +1,5 @@
 ﻿using ASP_P26.Data;
+using ASP_P26.Models.Rest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,39 +13,44 @@ namespace ASP_P26.Controllers.Api
         private readonly DataAccessor _dataAccessor = dataAccessor;
 
         [HttpPost("{id}")]
-        public Object AddToCart([FromRoute] String id)
+        public RestResponse AddToCart([FromRoute] String id)
         {
+            RestResponse restResponse = new();
+            restResponse.Meta.ResourceName = "Shop API 'user cart'";
+            restResponse.Meta.ResourceUrl = $"/api/cart/{id}";
+            restResponse.Meta.Method = "POST";
+            restResponse.Meta.Manipulations = ["POST", "PATCH", "DELETE"];
+            
             if (HttpContext.User.Identity?.IsAuthenticated ?? false)
             {
                 String? userId = HttpContext.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.PrimarySid)?.Value;
                 if (userId == null)
                 {
-                    HttpContext.Response.StatusCode = 403;
-                    return new { message = "PrimarySid not found" };
+                    restResponse.Status = RestStatus.RestStatus403;
+                    restResponse.Data = "PrimarySid not found";
+                    restResponse.Meta.DataType = "string";
                 }
-                try
-                {
-                    _dataAccessor.AddToCart(userId, id);
-                    return new { message = "Ok" };
-                }
-                catch (Exception e) when (e is ArgumentNullException || e is FormatException)
-                {
-                    HttpContext.Response.StatusCode = 400;
-                    return new { message = e.Message };
-                }
-                catch
-                {
-                    HttpContext.Response.StatusCode = 500;
-                    return new { message = "Internal Error" };
-                }
+                else try
+                    {
+                        _dataAccessor.AddToCart(userId, id);
+                    }
+                    catch (Exception e) when (e is ArgumentNullException || e is FormatException)
+                    {
+                        restResponse.Status = RestStatus.RestStatus400;
+                        restResponse.Data = e.Message;
+                        restResponse.Meta.DataType = "string";
+                    }
+                    catch
+                    {
+                        restResponse.Status = RestStatus.RestStatus500;
+                    }
             }
             else
             {
-                HttpContext.Response.StatusCode = 401;
-                return new { message = "UnAuthorized" };
+                restResponse.Status = RestStatus.RestStatus401;
             }
-                
+            return restResponse;
         }
     }
 }
