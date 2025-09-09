@@ -8,6 +8,10 @@
     String userLogin = isAuthenticated 
     ? Context.User.Claims.First(c => c.Type == ClaimTypes.Sid).Value
     : "";
+    UserCartModel? userCartModel =
+        Context.Items.ContainsKey(nameof(UserCartModel))
+        ? Context.Items[nameof(UserCartModel)] as UserCartModel
+        : null;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -55,6 +59,10 @@
                     <div>      
                         @if (isAuthenticated)
                         {
+                            <a class="btn btn-primary" asp-controller="Shop" asp-action="Cart">
+                                <i class="bi bi-cart2"></i>
+                                <span>@(userCartModel?.ActiveCart?.CartItems.Count() ?? 0)</span>
+                            </a>
                             <a class="text-dark" 
                                 asp-area="" 
                                 asp-controller="User"

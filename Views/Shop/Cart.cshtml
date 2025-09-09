@@ -1,7 +1,56 @@
-﻿@{
+﻿@model ASP_P26.Models.Shop.ShopCartPageModel
+@{
     ViewData["Title"] = "Cart";
 }
 
 <div class="text-center">
     <h1 class="display-4">Мій кошик</h1>
 </div>
+
+@if (Model.ActiveCartItems == null)
+{
+    <div class="alert alert-danger" role="alert">
+        Кошик доступний після входу в систему
+    </div>
+}
+else if (Model.ActiveCartItems.Count() == 0)
+{
+    <h2>Ваш кошик поки що порожній.</h2>
+}
+else
+{
+    foreach(var cartItem in Model.ActiveCartItems)
+    {
+        <div class="row">
+            <div class="col col-1 v-center">
+                <img src="/Storage/Item/@(cartItem.Product.ImageUrl)"
+                     class="item-page-img"
+                     alt="@cartItem.Product.Name" />
+            </div>
+            <div class="col col-4 v-center">
+                @cartItem.Product.Name<br/>
+                @cartItem.Product.Description
+            </div>
+            <div class="col col-2 v-center">₴ @(cartItem.Product.Price)</div>
+            <div class="col col-2 v-center">
+                <div>
+                    <button 
+                        data-cart-product-id="@cartItem.Product.Id"
+                        data-increment="-1"
+                        class="btn btn-outline-warning">-</button>
+                    @cartItem.Quantity
+                    <button 
+                        data-cart-product-id="@cartItem.Product.Id"
+                        data-increment="1" 
+                        class="btn btn-outline-success">+</button>
+                </div>
+            </div>
+            <div class="col col-2 v-center">₴ @(cartItem.Price)</div>
+            <div class="col col-1 v-center">
+                <div>
+                    <button class="btn btn-outline-danger">X</button>
+                </div>                
+            </div>
+        </div>
+    }
+}

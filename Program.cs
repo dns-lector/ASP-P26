@@ -1,5 +1,6 @@
 using ASP_P26.Data;
 using ASP_P26.Middleware.Auth;
+using ASP_P26.Middleware.Cart;
 using ASP_P26.Services.Email;
 using ASP_P26.Services.Jwt;
 using ASP_P26.Services.Kdf;
@@ -65,9 +66,10 @@ app.MapStaticAssets();
 app.UseSession();
 
 app.UseAuthSession();
-
 // app.UseAuthToken();
 app.UseAuthJwt();
+
+app.UseUserCart();
 
 app.MapControllerRoute(
     name: "default",

@@ -12,9 +12,124 @@ namespace ASP_P26.Data
 
         public void AddToCart(String userId, String productId)
         {
+            Guid userGuid = Guid.Parse(userId);
+            Guid productGuid = Guid.Parse(productId);
+            var user = _dataContext.Users.Find(userGuid) ??
+                throw new ArgumentException("user not found", nameof(userId));
+            Product? product = _dataContext.Products.Find(productGuid) ??
+                throw new ArgumentException("product not found", nameof(productId));
+            // Якщо у користувача є відкритий кошик, то
+            //   якщо у кошику є такий товар, то збільшуємо його кількість
+            //   інакше створюємо новий запис CartItem
+            // інакше створюємо новий кошик і додаємо товар
+            var cart = _dataContext
+                .Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefault(c => c.UserId == userGuid
+                    && c.PaidAt == null && c.DeletedAt == null);
+            if (cart == null)
+            {
+                cart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
+                    Price = 0,
+                    UserId = userGuid,
+                };
+                _dataContext.Carts.Add(cart);
+            }
 
+            CartItem? cartItem = cart.CartItems
+                .FirstOrDefault(ci => ci.ProductId == productGuid);
+            if (cartItem == null)
+            {
+                cartItem = new CartItem
+                {
+                    Id = Guid.NewGuid(),
+                    CartId = cart.Id,
+                    Price = product.Price,
+                    Quantity = 1,
+                    ProductId = productGuid,
+                };
+                // cart.CartItems.Add(cartItem);
+                _dataContext.CartItems.Add(cartItem);
+                cart.Price += cartItem.Price;   // TODO: DiscountService
+            }
+            else
+            {
+                cartItem.Quantity += 1;
+                cartItem.Price += product.Price;
+                cart.Price += product.Price;     // TODO: DiscountService
+            }
+            _dataContext.SaveChanges();
         }
+        public IEnumerable<CartItem> GetActiveCartItems(String userId)
+        {            
+            var cart = GetActiveCart(userId);
+            return cart?.CartItems ?? [];
+        }
+        public IEnumerable<Cart> GetCarts()
+        {
+            return [];
+        }
+        public Cart? GetActiveCart(String userId, bool isEditable = false)
+        {
+            Guid userGuid = Guid.Parse(userId);
 
+            var user = _dataContext.Users.Find(userGuid) ??
+                throw new ArgumentException("user not found", nameof(userId));
+
+            IQueryable<Cart> source = _dataContext
+               .Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product);
+
+            if (!isEditable) source = source.AsNoTracking();
+
+            return source.FirstOrDefault(c => c.UserId == userGuid
+                    && c.PaidAt == null && c.DeletedAt == null);
+        }
+        public void ModifyCart(String userId, String productId, int increment)
+        {
+            Guid userGuid = Guid.Parse(userId);
+            Guid productGuid = Guid.Parse(productId);
+            var user = _dataContext.Users.Find(userGuid) ??
+                throw new ArgumentException("user not found", nameof(userId));
+            Cart cart = GetActiveCart(userId, isEditable: true) ??
+                throw new ArgumentException("active cart not found");
+
+            // Якщо у кошику немає заданого товару, то це неправильний запит
+            CartItem cartItem = cart
+                .CartItems
+                .FirstOrDefault(ci => ci.ProductId == productGuid)
+                ?? throw new ArgumentException("product not found", nameof(productId));
+            
+            // Якщо інкремент від'ємний і призводить до від'ємного підсумку,
+            // то це неправильний запит
+            int newQuantity = cartItem.Quantity + increment;
+            if(newQuantity < 0)
+            {
+                throw new ArgumentException("increment causes negative quantity");
+            }
+            // Якщо інкремент перевищує наявність товару, то це необроблюваний запит
+            if(newQuantity > cartItem.Product.Stock)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            if (newQuantity == 0)
+            {
+                // Delete
+                _dataContext.CartItems.Remove(cartItem);
+            }
+            else
+            {
+                cartItem.Quantity = newQuantity;
+                // TODO: DiscountService
+                cartItem.Price += increment * cartItem.Product.Price;
+                cart.Price += increment * cartItem.Product.Price;
+            }
+            _dataContext.SaveChanges();
+        }
 
         public bool IsProductSlugUsed(String slug)
         {
@@ -136,7 +251,7 @@ namespace ASP_P26.Data
                 .Include(ua => ua.UserData)
                 .Include(ua => ua.UserRole);
 
-            if (isEditable) source = source.AsNoTracking();
+            if (!isEditable) source = source.AsNoTracking();
 
             return source.FirstOrDefault(ua => 
                 ua.Login == userLogin && 

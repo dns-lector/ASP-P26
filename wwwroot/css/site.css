@@ -66,3 +66,9 @@ body {
 [data-in-cart="1"] .not-in-cart {
     display: none;
 }
+
+.v-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

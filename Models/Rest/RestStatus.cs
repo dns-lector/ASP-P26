@@ -28,6 +28,13 @@
             Phrase = "Forbidden"
         };
 
+        public static readonly RestStatus RestStatus409 = new()
+        {
+            IsOk = false,
+            Code = 409,
+            Phrase = "Conflict"
+        };
+
         public static readonly RestStatus RestStatus500 = new()
         {
             IsOk = false,

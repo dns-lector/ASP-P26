@@ -1,5 +1,12 @@
 ﻿@model ASP_P26.Data.Entities.Product
-
+@{
+    UserCartModel? userCartModel =
+        Context.Items.ContainsKey(nameof(UserCartModel))
+        ? Context.Items[nameof(UserCartModel)] as UserCartModel
+        : null;
+    bool isInCart = userCartModel?.ActiveCart?
+        .CartItems.Any(ci => ci.ProductId == Model.Id) ?? false;
+}
 <div class="col">
     <div class="card h-100">    
         <img src="/Storage/Item/@(Model.ImageUrl)" class="card-img-top" alt="@Model.Name">
@@ -11,7 +18,7 @@
         </div>
         <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
             <span>₴ @(Model.Price.ToString("F2"))</span>
-            <div data-in-cart="@(Model.Stock > 15 ? 1 : 0)">
+            <div data-in-cart="@(isInCart ? 1 : 0)">
                 <a class="in-cart btn btn-success" asp-action="Cart"><i class="bi bi-cart-check"></i></a>
                 <button data-product-id="@Model.Id" class="not-in-cart btn btn-outline-success"><i class="bi bi-cart"></i></button>
             </div>

@@ -14,7 +14,27 @@ document.addEventListener('DOMContentLoaded', e => {
     for (let btn of document.querySelectorAll("[data-product-id]")) {
         btn.addEventListener('click', addToCartClick);
     }
+    for (let btn of document.querySelectorAll("[data-cart-product-id]")) {
+        btn.addEventListener('click', modifyCartQuantity);
+    }
 });
+
+function modifyCartQuantity(e) {
+    const btn = e.target.closest("[data-cart-product-id]");
+    if (!btn) throw `modifyCartQuantity: closest("[data-cart-product-id]") not found`;
+    const productId = btn.getAttribute("data-cart-product-id");
+    const increment = btn.getAttribute("data-increment");
+    fetch(`/api/cart/${productId}?increment=${increment}`, {
+        method: 'PATCH'
+    }).then(r => r.json()).then(j => {
+        if (j.status.isOk) {
+            window.location.reload();
+        }
+        else {
+            alert(j.data);
+        }
+    });
+}
 
 function addToCartClick(e) {
     const btn = e.target.closest("[data-product-id]");
