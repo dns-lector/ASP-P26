@@ -120,6 +120,7 @@ namespace ASP_P26.Data
             {
                 // Delete
                 _dataContext.CartItems.Remove(cartItem);
+                cart.Price -= cartItem.Price;
             }
             else
             {
@@ -128,6 +129,20 @@ namespace ASP_P26.Data
                 cartItem.Price += increment * cartItem.Product.Price;
                 cart.Price += increment * cartItem.Product.Price;
             }
+            _dataContext.SaveChanges();
+        }
+        public void CheckoutActiveCart(String userId)
+        {
+            Cart cart = GetActiveCart(userId, isEditable: true)
+                ?? throw new ArgumentException("active cart not found");
+            cart.PaidAt = DateTime.Now;
+            _dataContext.SaveChanges();
+        }
+        public void DiscardActiveCart(String userId)
+        {
+            Cart cart = GetActiveCart(userId, isEditable: true)
+                ?? throw new ArgumentException("active cart not found");
+            cart.DeletedAt = DateTime.Now;
             _dataContext.SaveChanges();
         }
 

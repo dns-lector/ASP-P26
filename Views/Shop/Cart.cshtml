@@ -53,4 +53,20 @@ else
             </div>
         </div>
     }
+    <div class="row py-2" style="background-color: antiquewhite">
+        <div class="col offset-5 col-2 v-center fw-bold ps-2">
+            Разом:
+        </div>
+        <div class="col col-2 v-center fw-bold ps-2">
+            @Model.ActiveCartItems.Sum(ci => ci.Quantity)
+        </div>
+        <div class="col col-2 v-center fw-bold">
+            ₴ @Model.ActiveCartItems.First().Cart.Price
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col pe-2"><a asp-action="Index" class="w-100 btn btn-dark">До крамниці</a></div>
+        <div class="col px-2"><button id="btn-discard-cart" class="w-100 btn btn-danger">Скасувати</button></div>
+        <div class="col ps-2"><button id="btn-checkout-cart" class="w-100 btn btn-primary">Придбати</button></div>
+    </div>
 }

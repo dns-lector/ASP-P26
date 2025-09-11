@@ -17,7 +17,32 @@ document.addEventListener('DOMContentLoaded', e => {
     for (let btn of document.querySelectorAll("[data-cart-product-id]")) {
         btn.addEventListener('click', modifyCartQuantity);
     }
+    let btn = document.getElementById("btn-checkout-cart");
+    if (btn) { btn.onclick = checkoutCartClick; }
+    btn = document.getElementById("btn-discard-cart");
+    if (btn) { btn.onclick = discardCartClick; }
 });
+
+function checkoutCartClick() {
+    // Задача: вивести підтвердження 
+    // "Ви підтверджуєте замовлення на 3 позиції 
+    // сумою 2321грн"
+    fetch("/api/cart", {
+        method: "PUT"
+    }).then(r => r.json()).then(j => {
+        if (j.status.isOk) {
+            alert("Вітаємо вас з придбанням!");
+            window.location = "/Shop";
+        }
+        else {
+            alert(j.data);
+        }
+    });
+}
+
+function discardCartClick() {
+
+}
 
 function modifyCartQuantity(e) {
     const btn = e.target.closest("[data-cart-product-id]");
