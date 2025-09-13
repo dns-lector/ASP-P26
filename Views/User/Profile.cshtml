@@ -8,7 +8,7 @@
 </div>
 
 <div class="row">
-    <div class="col col-xxl-6 offset-xxl-3   col-xl-8 offset-xl-2  col-md-10 offset-md-1   col-sm-12">
+    <div class="col col-xxl-5 offset-xxl-2   col-xl-6 offset-xl-2 col-lg-7  col-md-8    col-sm-10">
         @if (Model.IsPersonal == null)
         {
             <div class="alert alert-danger" role="alert">
@@ -46,6 +46,25 @@
             }
         }
 
+    </div>
+
+    <div class="col">
+        @if (Model.IsPersonal ?? false)
+        {
+            <h2>Історія покупок</h2>
+            foreach(var cart in Model.Carts.OrderByDescending(c => c.CreatedAt))
+            {
+                String bg = "btn-outline-primary";
+                if (cart.PaidAt != null) bg = "btn-outline-success";
+                if (cart.DeletedAt != null) bg = "btn-outline-danger";
+
+                <a class="btn m-2 @bg" 
+                   asp-controller="Shop" asp-action="Cart" asp-route-id="@cart.Id">
+                    @cart.CreatedAt.ToString("dd.MM.yyyy")
+                    @cart.CartItems.Count() товарів
+                </a>
+            }
+        }
     </div>
 </div>
 

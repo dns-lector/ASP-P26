@@ -68,9 +68,13 @@ namespace ASP_P26.Data
             var cart = GetActiveCart(userId);
             return cart?.CartItems ?? [];
         }
-        public IEnumerable<Cart> GetCarts()
+        public IEnumerable<Cart> GetCarts(Guid userGuid, bool withDeleted = false)
         {
-            return [];
+            return _dataContext
+                .Carts
+                .Include(c => c.CartItems)
+                .Where(c => c.UserId == userGuid && (withDeleted || c.DeletedAt == null) )
+                .AsEnumerable();
         }
         public Cart? GetActiveCart(String userId, bool isEditable = false)
         {
@@ -88,6 +92,16 @@ namespace ASP_P26.Data
 
             return source.FirstOrDefault(c => c.UserId == userGuid
                     && c.PaidAt == null && c.DeletedAt == null);
+        }
+        public Cart? GetCartById(String cartId)
+        {
+            Guid cartGuid = Guid.Parse(cartId);
+            return _dataContext
+                .Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .AsNoTracking()
+                .FirstOrDefault(c => c.Id == cartGuid);
         }
         public void ModifyCart(String userId, String productId, int increment)
         {

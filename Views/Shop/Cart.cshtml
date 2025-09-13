@@ -4,13 +4,15 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Мій кошик</h1>
+    <h1 class="display-4">@(Model.IsActive ? "Мій кошик" : "Історія покупки" )</h1>
 </div>
 
 @if (Model.ActiveCartItems == null)
 {
     <div class="alert alert-danger" role="alert">
-        Кошик доступний після входу в систему
+        @(Context.User.Identity?.IsAuthenticated ?? false 
+        ? "Історія даної покупки відсутня"
+        : "Кошик доступний після входу в систему")
     </div>
 }
 else if (Model.ActiveCartItems.Count() == 0)
@@ -66,7 +68,14 @@ else
     </div>
     <div class="row mt-5">
         <div class="col pe-2"><a asp-action="Index" class="w-100 btn btn-dark">До крамниці</a></div>
-        <div class="col px-2"><button id="btn-discard-cart" class="w-100 btn btn-danger">Скасувати</button></div>
-        <div class="col ps-2"><button id="btn-checkout-cart" class="w-100 btn btn-primary">Придбати</button></div>
+        @if (Model.IsActive)
+        {
+            <div class="col px-2"><button id="btn-discard-cart" class="w-100 btn btn-danger">Скасувати</button></div>
+            <div class="col ps-2"><button id="btn-checkout-cart" class="w-100 btn btn-primary">Придбати</button></div>
+        }
+        else
+        {
+            <div class="col ps-2"><button id="btn-repeat-cart" data-cart-id="@Model.ActiveCartItems.First().CartId" class="w-100 btn btn-primary">Повторити</button></div>
+        }
     </div>
 }

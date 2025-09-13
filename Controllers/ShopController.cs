@@ -36,15 +36,27 @@ namespace ASP_P26.Controllers
             return View(model);
         }
 
-        public IActionResult Cart()
+        public IActionResult Cart(String? id)
         {
             ShopCartPageModel model = new();
             if (HttpContext.User.Identity?.IsAuthenticated ?? false)
             {
                 String userId = HttpContext.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.PrimarySid)!.Value;
-
-                model.ActiveCartItems = _dataAccessor.GetActiveCartItems(userId);            
+                if (id == null)
+                {
+                    model.ActiveCartItems = _dataAccessor.GetActiveCartItems(userId);
+                }
+                else
+                {
+                    Data.Entities.Cart? cart;
+                    try { cart = _dataAccessor.GetCartById(id); }
+                    catch { cart = null; }
+                    model.ActiveCartItems = cart?.CartItems;
+                    model.IsActive = cart != null 
+                        && cart.PaidAt == null 
+                        && cart.DeletedAt == null;
+                }
             }
             return View(model);
         }

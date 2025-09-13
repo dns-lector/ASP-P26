@@ -372,6 +372,7 @@ namespace ASP_P26.Controllers
                     {
                         model.IsPersonal = true;
                         model.Birthdate = ua.UserData.Birthdate;
+                        model.Carts = _dataAccessor.GetCarts(ua.UserId, withDeleted: true);
                     }
                     else  // Перегляд профілю іншого користувача
                     {

@@ -71,8 +71,15 @@ namespace ASP_P26.Controllers.Api
 
             return restResponse;
         }
-    
-    
+
+
+        [HttpPost("repeat/{id}")]
+        public RestResponse RepeatCart(String id)
+        {
+            restResponse.Data = id;
+            return restResponse;
+        }
+
         private void ExecuteAuthority(Action<String> action, String callerName)
         {
             if (HttpContext.User.Identity?.IsAuthenticated ?? false)
