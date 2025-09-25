@@ -1,6 +1,6 @@
 ﻿namespace ASP_P26.Data.Entities
 {
-    public class ProductGroup
+    public record ProductGroup
     {
         public Guid      Id          { get; set; }
         public Guid?     ParentId    { get; set; }

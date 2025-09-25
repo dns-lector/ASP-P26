@@ -1,6 +1,9 @@
 ﻿using ASP_P26.Data;
 using ASP_P26.Data.Entities;
+using ASP_P26.Filters;
 using ASP_P26.Models.Api.Group;
+using ASP_P26.Models.Rest;
+using ASP_P26.Models.Shop;
 using ASP_P26.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +12,12 @@ namespace ASP_P26.Controllers.Api
 {
     [Route("api/product-group")]
     [ApiController]
+    [RestFilter(Name: "Shop API 'product groups'")]
     public class ProductGroupController(DataAccessor dataAccessor, IStorageService storageService) : ControllerBase
     {
         private readonly DataAccessor _dataAccessor = dataAccessor;
         private readonly IStorageService _storageService = storageService;
+        private RestResponse restResponse = null!;
 
         private object AnyRequest()
         {
@@ -48,9 +53,23 @@ namespace ASP_P26.Controllers.Api
         }
 
         [HttpGet]
-        public IEnumerable<ProductGroup> ExecuteGET()
+        public RestResponse GetAllGroups()
         {
-            return _dataAccessor.GetProductGroups();
+            String imgPath = HttpContext.Request.Scheme + "://" +
+                    HttpContext.Request.Host + "/Storage/Item/";
+
+            restResponse.Meta.ResourceUrl = $"/api/product-group";
+            restResponse.Meta.Manipulations = ["GET", "POST"];
+            restResponse.Data = new ShopIndexPageModel
+            {
+                PageTitle = "Крамниця",
+                PageTitleImg = imgPath + "logo.jpg",
+                ProductGroups = _dataAccessor
+                    .GetProductGroups()
+                    .Select(g => g with { ImageUrl = imgPath + g.ImageUrl }),
+            };
+            return restResponse;
+            // return _dataAccessor.GetProductGroups();
         }
 
         [HttpPost]
