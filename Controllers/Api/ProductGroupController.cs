@@ -18,6 +18,29 @@ namespace ASP_P26.Controllers.Api
         private readonly DataAccessor _dataAccessor = dataAccessor;
         private readonly IStorageService _storageService = storageService;
         private RestResponse restResponse = null!;
+        String imgPath => HttpContext.Request.Scheme + "://" +
+                    HttpContext.Request.Host + "/Storage/Item/";
+
+        [HttpGet("{id}")]
+        public RestResponse GetGroupBySlug(String id)
+        {
+            if (_dataAccessor.GetProductGroupBySlug(id) is ProductGroup group)
+            {
+                restResponse.Data = group with
+                {
+                    ImageUrl = imgPath + group.ImageUrl,
+                    Products = [..group.Products.Select(p => p with
+                    {
+                        ImageUrl = imgPath + p.ImageUrl
+                    })]
+                };
+            }
+            else
+            {
+                restResponse.Status = RestStatus.RestStatus404;
+            }
+            return restResponse;
+        }
 
         private object AnyRequest()
         {
@@ -55,9 +78,6 @@ namespace ASP_P26.Controllers.Api
         [HttpGet]
         public RestResponse GetAllGroups()
         {
-            String imgPath = HttpContext.Request.Scheme + "://" +
-                    HttpContext.Request.Host + "/Storage/Item/";
-
             restResponse.Meta.ResourceUrl = $"/api/product-group";
             restResponse.Meta.Manipulations = ["GET", "POST"];
             restResponse.Data = new ShopIndexPageModel
