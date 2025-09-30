@@ -1,5 +1,6 @@
 ﻿using ASP_P26.Data;
 using ASP_P26.Data.Entities;
+using ASP_P26.Models.Rest;
 using ASP_P26.Models.User;
 using ASP_P26.Services.Email;
 using ASP_P26.Services.Jwt;
@@ -166,11 +167,11 @@ namespace ASP_P26.Controllers
                 accessToken.Aud,
                 userAccess.UserData.Name,
                 userAccess.UserData.Email,
+                Uid = userAccess.UserId,
             };
 
-            return Json(new
+            return Json(new RestResponse
             {
-                Status = 200,
                 Data = _jwtService.EncodeJwt(jwt)
             });
         }

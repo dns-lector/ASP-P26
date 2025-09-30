@@ -19,6 +19,17 @@ namespace ASP_P26.Controllers.Api
         private readonly ILogger<CartController> _logger = logger;
         private RestResponse restResponse = null!;
 
+        [HttpGet]
+        public RestResponse ActiveCart()
+        {
+            restResponse.Meta.ResourceUrl = $"/api/cart";
+            restResponse.Meta.Manipulations = ["PUT", "DELETE"];
+            ExecuteAuthority(
+               (u) => restResponse.Data = _dataAccessor.GetActiveCart(u),
+               nameof(ActiveCart));
+            return restResponse;
+        }
+
         [HttpDelete]
         public RestResponse DiscardCart()
         {

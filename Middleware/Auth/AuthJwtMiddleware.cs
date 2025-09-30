@@ -35,7 +35,8 @@ namespace ASP_P26.Middleware.Auth
                             new Claim[]
                             {
                                 new(ClaimTypes.Name, payloadElement.GetProperty("Name").GetString()!),
-                                new(ClaimTypes.Email, payloadElement.GetProperty("Email").GetString()!)
+                                new(ClaimTypes.Email, payloadElement.GetProperty("Email").GetString()!),
+                                new(ClaimTypes.PrimarySid, payloadElement.GetProperty("Uid").GetString()!),
                             },
                             nameof(AuthTokenMiddleware)
                         )

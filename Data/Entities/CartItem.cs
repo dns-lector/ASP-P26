@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ASP_P26.Data.Entities
 {
@@ -13,8 +14,10 @@ namespace ASP_P26.Data.Entities
         public double Price { get; set; }
         public Guid? DiscountItemId { get; set; }
 
-        public Cart Cart { get; set; } = null!;
         public Product Product { get; set; } = null!;
+
+        [JsonIgnore]
+        public Cart Cart { get; set; } = null!;
 
     }
 }
