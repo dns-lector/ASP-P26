@@ -202,6 +202,24 @@ namespace ASP_P26.Data
                     && p.DeletedAt == null
                 );
         }
+        public IEnumerable<Product> GetProductAssociations(Product product)
+        {
+            // Associations - "Вас також може зацікавити" - додаткові товари
+            // у карточці (сторінці) даного товару product
+            // Логіка: три товари з тієї ж групи (випадково, але не product)
+            // плюс три випадкові товари з інших груп
+            return [
+                .._dataContext.Products
+                    .OrderBy(p => Guid.NewGuid())
+                    .Where(p => p.Id != product.Id && p.GroupId == product.GroupId)
+                    .Take(3),
+                .._dataContext.Products
+                    .OrderBy(p => Guid.NewGuid())
+                    .Where(p => p.GroupId != product.GroupId)
+                    .Take(3)
+            ];
+        }
+
 
         public bool IsGroupSlugUsed(String slug)
         {

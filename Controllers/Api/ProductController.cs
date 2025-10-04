@@ -1,6 +1,7 @@
 ﻿using ASP_P26.Data;
 using ASP_P26.Filters;
 using ASP_P26.Models.Api.Product;
+using ASP_P26.Models.Rest;
 using ASP_P26.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,16 +11,51 @@ namespace ASP_P26.Controllers.Api
 {
     [Route("api/product")]
     [ApiController]
-    [AuthorizationFilter]
+    //[AuthorizationFilter]
     public class ProductController(DataAccessor dataAccessor, IStorageService storageService) : ControllerBase
     {
         private readonly DataAccessor _dataAccessor = dataAccessor;
         private readonly IStorageService _storageService = storageService;
+        String imgPath => HttpContext.Request.Scheme + "://" +
+                    HttpContext.Request.Host + "/Storage/Item/";
 
-        [HttpGet]
-        public IEnumerable<string> ProductsList()
+        [HttpGet("{id}")]
+        public RestResponse ProductInfo(String id)
         {
-            return ["1", "2", "3"];
+            ApiProductInfoModel model = new()
+            {
+                Slug = id,
+                Product = _dataAccessor.GetProductBySlug(id)
+            };
+            if (model.Product != null)
+            {
+                model.Product = model.Product with
+                {
+                    ImageUrl = imgPath + model.Product.ImageUrl,
+                };
+                model.Associations = _dataAccessor
+                    .GetProductAssociations(model.Product)
+                    .Select(p => p with
+                    {
+                        ImageUrl = imgPath + p.ImageUrl,
+                    });
+            }
+            RestResponse restResponse = new()
+            {
+                Status = model.Product != null 
+                    ? RestStatus.RestStatus200 
+                    : RestStatus.RestStatus404,
+                Meta = new()
+                {
+                    ResourceName = "Shop API 'Product'. Get info by slug/id",
+                    Cache = 86400,
+                    Method = "GET",
+                    DataType = "json/oblect",
+                    ServerTime = DateTime.Now.Ticks,
+                },
+                Data = model
+            };
+            return restResponse;
         }
 
         [HttpPost]

@@ -7,6 +7,13 @@
         public String Phrase { get; set; } = "Ok";
 
 
+        public static readonly RestStatus RestStatus200 = new()
+        {
+            IsOk = true,
+            Code = 200,
+            Phrase = "Ok"
+        };
+
         public static readonly RestStatus RestStatus400 = new()
         {
             IsOk = false,

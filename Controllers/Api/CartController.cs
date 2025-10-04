@@ -18,6 +18,8 @@ namespace ASP_P26.Controllers.Api
         private readonly DataAccessor _dataAccessor = dataAccessor;
         private readonly ILogger<CartController> _logger = logger;
         private RestResponse restResponse = null!;
+        String imgPath => HttpContext.Request.Scheme + "://" +
+                   HttpContext.Request.Host + "/Storage/Item/";
 
         [HttpGet]
         public RestResponse ActiveCart()
@@ -25,8 +27,24 @@ namespace ASP_P26.Controllers.Api
             restResponse.Meta.ResourceUrl = $"/api/cart";
             restResponse.Meta.Manipulations = ["PUT", "DELETE"];
             ExecuteAuthority(
-               (u) => restResponse.Data = _dataAccessor.GetActiveCart(u),
-               nameof(ActiveCart));
+               (u) => {
+                   var activeCart = _dataAccessor.GetActiveCart(u);
+                   if (activeCart != null) 
+                   {
+                       activeCart = activeCart with
+                       {
+                           CartItems = [..activeCart.CartItems.Select(ci =>
+                               ci with { 
+                                   Product = ci.Product with { 
+                                       ImageUrl = imgPath + ci.Product.ImageUrl 
+                                } 
+                           })]
+                       };
+                   }
+                   restResponse.Data = activeCart;
+                },
+               nameof(ActiveCart)
+               );
             return restResponse;
         }
 
